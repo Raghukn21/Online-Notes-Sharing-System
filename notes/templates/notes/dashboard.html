@@ -1,0 +1,194 @@
+{% extends "notes/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Online Notes Sharing{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-card {
+        padding: 40px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 25px;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-gradient);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        color: white;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+
+    .modern-table tr {
+        background: var(--glass-bg);
+        transition: 0.3s;
+    }
+
+    .modern-table tr:hover {
+        transform: scale(1.01);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .modern-table td {
+        padding: 20px;
+        vertical-align: middle;
+    }
+
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .status-approved {
+        background: rgba(0, 210, 255, 0.2);
+        color: var(--accent-color);
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 5px;
+        text-decoration: none !important;
+    }
+
+    .btn-view {
+        background: rgba(106, 17, 203, 0.2);
+        color: #6a11cb;
+    }
+
+    .btn-delete {
+        background: rgba(255, 75, 43, 0.2);
+        color: #ff4b2b;
+    }
+
+    .btn-approve {
+        background: rgba(37, 211, 102, 0.2);
+        color: #25d366;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-card glass-card">
+    <div>
+        <h1 style="font-weight: 800; margin: 0;">Hello, {{ username }}</h1>
+        <p style="opacity: 0.8; margin-top: 10px;">Welcome back to your modern notes panel.</p>
+    </div>
+    {% if role != 'admin' %}
+    <a href="{% url 'upload' %}" class="btn-modern">
+        <i class="fa fa-plus"></i> Upload New Note
+    </a>
+    {% endif %}
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card glass-card animate-3d" style="animation-delay: 0.1s;">
+        <div class="stat-icon"><i class="fa fa-file-text-o"></i></div>
+        <div>
+            <div style="font-size: 24px; font-weight: 800;">{{ total_notes }}</div>
+            <div style="font-size: 13px; opacity: 0.7;">Total Uploaded Notes</div>
+        </div>
+    </div>
+    <div class="stat-card glass-card animate-3d" style="animation-delay: 0.2s;">
+        <div class="stat-icon" style="background: var(--secondary-gradient);"><i class="fa fa-book"></i></div>
+        <div>
+            <div style="font-size: 24px; font-weight: 800;">{{ subject_count }}</div>
+            <div style="font-size: 13px; opacity: 0.7;">Managed Subjects</div>
+        </div>
+    </div>
+    {% if role == 'admin' %}
+    <div class="stat-card glass-card animate-3d" style="animation-delay: 0.3s;">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #ff4b2b;">
+            <i class="fa fa-clock-o"></i>
+        </div>
+        <div>
+            <div style="font-size: 24px; font-weight: 800;">{{ pending_notes }}</div>
+            <div style="font-size: 13px; opacity: 0.7;">Pending Approvals</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="animate-3d" style="animation-delay: 0.4s;">
+    <h3 style="font-weight: 700; margin-bottom: 25px;">Recent Activities</h3>
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th style="padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6;">Note Name</th>
+                <th style="padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6;">Type</th>
+                <th style="padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6;">Uploader</th>
+                <th style="padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6;">Uploaded On
+                </th>
+                <th style="padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6;">Status</th>
+                <th style="padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for upload in uploads %}
+            <tr>
+                <td>{{ upload.file_name }}</td>
+                <td><span style="font-weight: 700;">{{ upload.file_type|upper }}</span></td>
+                <td>{{ upload.file_uploader }}</td>
+                <td>{{ upload.file_uploaded_on|date:"Y-m-d" }}</td>
+                <td>
+                    <span
+                        class="status-badge {% if upload.status == 'approved' %}status-approved{% else %}status-pending{% endif %}">
+                        {{ upload.status }}
+                    </span>
+                </td>
+                <td>
+                    <a href="/media/uploads/{{ upload.file }}" class="action-btn btn-view" title="View"><i
+                            class="fa fa-eye"></i></a>
+                    {% if role == 'admin' and upload.status != 'approved' %}
+                    <a href="{% url 'approve_note' upload.id %}" class="action-btn btn-approve" title="Approve"><i
+                            class="fa fa-check"></i></a>
+                    {% endif %}
+                    {% if role == 'admin' or username == upload.file_uploader %}
+                    <a href="{% url 'delete_note' upload.id %}" class="action-btn btn-delete"
+                        onclick="return confirm('Delete?')" title="Delete"><i class="fa fa-trash"></i></a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

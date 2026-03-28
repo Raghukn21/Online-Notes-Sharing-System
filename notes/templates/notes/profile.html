@@ -1,0 +1,384 @@
+{% extends "notes/base.html" %}
+{% load static %}
+
+{% block title %}My Profile - Online Notes Sharing{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        padding: 40px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        cursor: pointer;
+    }
+
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid var(--accent-color);
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 56px;
+        font-weight: 800;
+        text-transform: uppercase;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.3s;
+    }
+
+    .profile-avatar-container:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-overlay i {
+        color: white;
+        font-size: 24px;
+    }
+
+    .profile-info h1 {
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .profile-info p {
+        opacity: 0.7;
+        font-size: 18px;
+        margin: 5px 0 0;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .info-item {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+    }
+
+    .info-item label {
+        display: block;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.5;
+        margin-bottom: 5px;
+    }
+
+    .info-item span {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .upload-btn-container {
+        display: none;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container animate-3d">
+    <div class="glass-card">
+        <div class="profile-header">
+            <form action="{% url 'profile' %}" method="POST" enctype="multipart/form-data" id="photoForm">
+                {% csrf_token %}
+                <div class="profile-avatar-container" onclick="document.getElementById('profile_pic').click();">
+                    <div class="profile-avatar">
+                        {% if profile.image_url %}
+                        <img src="{{ profile.image_url }}" alt="Profile">
+                        {% else %}
+                        {{ username|slice:":1" }}
+                        {% endif %}
+                    </div>
+                    <div class="avatar-overlay">
+                        <i class="fa fa-camera"></i>
+                    </div>
+                    <input type="file" name="profile_pic" id="profile_pic" hidden onchange="this.form.submit()">
+                </div>
+            </form>
+            <div class="profile-info">
+                <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                <p>@{{ user.username }} • <span style="color: var(--accent-color); font-weight: 600;">{{ user.role|upper
+                        }}</span></p>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Email Address</label>
+                <span>{{ user.email }}</span>
+            </div>
+            <div class="info-item">
+                <label>Course/Department</label>
+                <span>{{ profile.course }}</span>
+            </div>
+            <div class="info-item">
+                <label>Joined Since</label>
+                <span>{{ profile.joindate }}</span>
+            </div>
+            <div class="info-item">
+                <label>Bio/About</label>
+                <span>{{ profile.about }}</span>
+            </div>
+        </div>
+
+        <div style="margin-top:30px;">
+            <h3 style="font-weight:700;font-size:16px;margin-bottom:15px;opacity:.8;">🔒 Security &amp; Biometrics</h3>
+            <div style="display:flex;gap:15px;flex-wrap:wrap;">
+
+                <!-- Fingerprint card -->
+                <div class="bio-card {% if profile.has_fingerprint %}bio-enrolled{% endif %}">
+                    <div style="font-size:42px;margin-bottom:8px;animation:pulse 2s infinite;">🖐</div>
+                    <div style="font-weight:700;font-size:14px;margin-bottom:4px;">Fingerprint</div>
+                    {% if profile.has_fingerprint %}
+                    <div style="color:#00ffb2;font-size:12px;margin-bottom:12px;">✅ Enrolled</div>
+                    <a href="{% url 'enroll_biometric' %}?type=fingerprint" class="btn-modern"
+                        style="font-size:12px;padding:8px 18px;text-decoration:none;">
+                        Re-enroll
+                    </a>
+                    {% else %}
+                    <div style="font-size:12px;opacity:.5;margin-bottom:12px;">Not enrolled</div>
+                    <a href="{% url 'enroll_biometric' %}?type=fingerprint" class="btn-modern"
+                        style="font-size:12px;padding:8px 18px;text-decoration:none;">
+                        + Add Fingerprint
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Face ID card -->
+                <div class="bio-card {% if profile.has_face %}bio-enrolled{% endif %}">
+                    {% if profile.has_face %}
+                    <div style="width: 80px; height: 80px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; border: 3px solid #00ffc8; box-shadow: 0 0 15px rgba(0,255,200,0.3);">
+                        <img src="{% if profile.face_path %}{{ profile.face_path }}{% else %}/media/faces/{{ profile.face_image }}{% endif %}" 
+                             style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);" 
+                             alt="Face Login Photo">
+                    </div>
+                    <div style="color:#00ffb2;font-size:12px;margin-bottom:12px;">✅ Enrolled</div>
+                    <button onclick="openFaceCamera()" class="btn-modern"
+                        style="font-size:12px;padding:8px 18px;text-decoration:none;">
+                        Re-enroll
+                    </button>
+                    {% else %}
+                    <div style="font-size:42px;margin-bottom:8px;animation:pulse 2.4s infinite;">👤</div>
+                    <div style="font-size:12px;opacity:.5;margin-bottom:12px;">Not enrolled</div>
+                    <button onclick="openFaceCamera()" class="btn-modern"
+                        style="font-size:12px;padding:8px 18px;text-decoration:none;">
+                        + Add Face Login
+                    </button>
+                    {% endif %}
+                </div>
+
+            </div>
+            <p style="font-size:11px;opacity:.4;margin-top:12px;text-align:center;" id="face-status">
+                {% if profile.has_face %}
+                Your face is enrolled. Use Face Login on the login page.
+                {% else %}
+                Click "Add Face Login" to use your camera for instant face recognition login.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Face Enrollment Camera Modal -->
+        <div id="faceCameraModal" class="camera-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: rgba(255,255,255,0.1); border: 2px solid var(--glass-border); border-radius: 20px; padding: 20px; max-width: 400px; text-align: center;">
+                <h3 style="margin-bottom: 15px; color: white;">📷 Enroll Your Face</h3>
+                <video id="faceVideo" style="width: 100%; max-width: 320px; height: 240px; border-radius: 12px; background: #000; transform: scaleX(-1);" autoplay playsinline></video>
+                <img id="facePreview" style="width: 100%; max-width: 320px; height: 240px; border-radius: 12px; object-fit: cover; display: none;">
+                <canvas id="faceCanvas" style="display: none;"></canvas>
+                <div id="enrollStatus" style="color: #00ffc8; font-size: 14px; margin: 10px 0;">Allow camera access to continue</div>
+                <div>
+                    <button id="enrollCaptureBtn" onclick="captureEnrollFace()" style="display: none; background: linear-gradient(135deg,#7648e8,#a78bfa); border: none; color: white; padding: 12px 30px; border-radius: 10px; font-weight: 600; cursor: pointer; margin: 5px;">📸 Capture</button>
+                    <button id="enrollRetryBtn" onclick="retryEnrollFace()" style="display: none; background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 30px; border-radius: 10px; font-weight: 600; cursor: pointer; margin: 5px;">🔄 Retake</button>
+                    <button id="enrollSaveBtn" onclick="saveEnrolledFace()" style="display: none; background: linear-gradient(135deg,#00d2ff,#3a7bd5); border: none; color: white; padding: 12px 30px; border-radius: 10px; font-weight: 600; cursor: pointer; margin: 5px;">💾 Save Face</button>
+                    <button onclick="closeFaceCamera()" style="background: rgba(255,80,80,0.3); border: none; color: white; padding: 12px 30px; border-radius: 10px; font-weight: 600; cursor: pointer; margin: 5px;">❌ Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let enrollStream = null;
+            let enrolledFaceImage = null;
+            
+            async function openFaceCamera() {
+                document.getElementById('faceCameraModal').style.display = 'flex';
+                document.getElementById('enrollStatus').textContent = 'Requesting camera access...';
+                
+                try {
+                    enrollStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'user', width: { ideal: 320 }, height: { ideal: 240 } }
+                    });
+                    
+                    const video = document.getElementById('faceVideo');
+                    video.srcObject = enrollStream;
+                    document.getElementById('faceVideo').style.display = 'block';
+                    document.getElementById('facePreview').style.display = 'none';
+                    document.getElementById('enrollStatus').textContent = '📸 Position your face and click Capture';
+                    document.getElementById('enrollCaptureBtn').style.display = 'inline-block';
+                    document.getElementById('enrollRetryBtn').style.display = 'none';
+                    document.getElementById('enrollSaveBtn').style.display = 'none';
+                    enrolledFaceImage = null;
+                } catch (err) {
+                    document.getElementById('enrollStatus').style.color = '#ff8080';
+                    document.getElementById('enrollStatus').textContent = '❌ Camera access denied';
+                }
+            }
+            
+            function captureEnrollFace() {
+                const video = document.getElementById('faceVideo');
+                const canvas = document.getElementById('faceCanvas');
+                const preview = document.getElementById('facePreview');
+                
+                canvas.width = 320;
+                canvas.height = 240;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, -320, 0, 320, 240);
+                
+                enrolledFaceImage = canvas.toDataURL('image/jpeg', 0.9);
+                preview.src = enrolledFaceImage;
+                preview.style.display = 'block';
+                video.style.display = 'none';
+                
+                if (enrollStream) {
+                    enrollStream.getTracks().forEach(track => track.stop());
+                    enrollStream = null;
+                }
+                
+                document.getElementById('enrollStatus').textContent = '✅ Photo captured! Click Save to enroll';
+                document.getElementById('enrollCaptureBtn').style.display = 'none';
+                document.getElementById('enrollRetryBtn').style.display = 'inline-block';
+                document.getElementById('enrollSaveBtn').style.display = 'inline-block';
+            }
+            
+            function retryEnrollFace() {
+                openFaceCamera();
+            }
+            
+            async function saveEnrolledFace() {
+                const statusEl = document.getElementById('enrollStatus');
+                statusEl.textContent = '💾 Saving face...';
+                document.getElementById('enrollSaveBtn').disabled = true;
+                
+                try {
+                    const response = await fetch('/face-enroll/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ face_image: enrolledFaceImage })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        statusEl.style.color = '#00ffb2';
+                        statusEl.textContent = '✅ Face enrolled successfully! Reloading...';
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        statusEl.style.color = '#ff8080';
+                        statusEl.textContent = '❌ ' + (result.error || 'Enrollment failed');
+                        document.getElementById('enrollSaveBtn').disabled = false;
+                    }
+                } catch (err) {
+                    statusEl.style.color = '#ff8080';
+                    statusEl.textContent = '❌ Error: ' + err.message;
+                    document.getElementById('enrollSaveBtn').disabled = false;
+                }
+            }
+            
+            function closeFaceCamera() {
+                document.getElementById('faceCameraModal').style.display = 'none';
+                if (enrollStream) {
+                    enrollStream.getTracks().forEach(track => track.stop());
+                    enrollStream = null;
+                }
+                enrolledFaceImage = null;
+            }
+        </script>
+
+        <style>
+            .bio-card {
+                flex: 1;
+                min-width: 180px;
+                padding: 20px;
+                background: rgba(255,255,255,0.05);
+                border: 2px solid var(--glass-border);
+                border-radius: 16px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .bio-card.bio-enrolled {
+                border-color: rgba(0,255,180,0.5);
+            }
+        </style>
+
+        <div style="margin-top: 30px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+            <a href="{% url 'dashboard' %}" class="btn-modern" style="text-decoration: none;">Dashboard</a>
+            <a href="{% url 'logout' %}" class="btn-modern"
+                style="background: rgba(255,80,80,0.15); border: 1px solid rgba(255,80,80,0.4); text-decoration:none;">
+                Logout
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.12);
+        }
+    }
+</style>
+{% endblock %}

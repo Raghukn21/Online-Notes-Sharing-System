@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Log-in - Online Notes Sharing{% endblock %}
+
+{% block content %}
+<div class="login-card">
+    <h1>Log-in</h1><br>
+    <form method="POST">
+        <input type="text" name="user" placeholder="Username" required="">
+        <input type="password" name="pass" placeholder="Password" required="">
+        <input id="uname" type="hidden" value="">
+        <input type="submit" name="login" class="login login-submit" value="login"
+            onclick="document.getElementById('uname').value = document.querySelector('input[name=user]').value;">
+    </form>
+
+    <div style="text-align: center; margin: 15px 0; font-size: 14px; color: #888;">OR USE BIOMETRIC</div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button type="button" class="login login-submit" onclick="biometricLogin('face')"
+            style="flex: 1; background: #6c5ce7; border-color: #6c5ce7;" id="btn-face">
+            😊 Face ID
+        </button>
+        <button type="button" class="login login-submit" onclick="biometricLogin('fingerprint')"
+            style="flex: 1; background: #00cec9; border-color: #00cec9;" id="btn-fp">
+            🖐 Fingerprint
+        </button>
+    </div>
+    <div id="bio-status" style="text-align: center; margin-bottom: 15px; color: #666; font-size: 13px;">Type your
+        username above, then click a biometric option</div>
+
+    <div class="login-help">
+        <a href="{{ url_for('signup') }}">Register</a> • <a href="#">Forgot Password</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+<script>
+    function biometricLogin(type) {
+        const usernameInput = document.querySelector('input[name="user"]');
+        const username = usernameInput ? usernameInput.value.trim() : '';
+        const statusEl = document.getElementById('bio-status');
+        const btnId = type === 'face' ? 'btn-face' : 'btn-fp';
+        const btn = document.getElementById(btnId);
+
+        if (!username) {
+            statusEl.style.color = '#ff6b6b';
+            statusEl.textContent = '⚠️ Please enter your username first!';
+            if (usernameInput) usernameInput.focus();
+            return;
+        }
+
+        // Simulating scan
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Scanning...';
+        btn.style.opacity = '0.7';
+        statusEl.style.color = '#74b9ff';
+        statusEl.textContent = (type === 'face') ? '😊 Scanning face...' : '🖐 Reading fingerprint...';
+
+        setTimeout(function () {
+            btn.innerHTML = originalText;
+            btn.style.opacity = '1';
+            statusEl.style.color = '#00b894';
+            statusEl.textContent = '✅ Match found — logging in...';
+            window.location.href = "{{ url_for('biometric_login') }}?username="
+                + encodeURIComponent(username)
+                + '&type=' + encodeURIComponent(type);
+        }, 2000);
+    }
+</script>
+{% endblock %}

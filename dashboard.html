@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NotesHub</title>
+    
+    <!-- CSS Dependencies -->
+    <style>
+        /* Reusing the same CSS variables and styles from login page */
+        :root {
+            /* Color Palette */
+            --primary-color: #667eea;
+            --primary-dark: #5a67d8;
+            --primary-light: #7c3aed;
+            --secondary-color: #48bb78;
+            --accent-color: #ed8936;
+            --danger-color: #f56565;
+            --warning-color: #ecc94b;
+            --info-color: #4299e1;
+            
+            /* Glassmorphism Colors */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --glass-backdrop: blur(4px);
+            --glass-backdrop-strong: blur(16px);
+            
+            /* Text Colors */
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --text-light: #a0aec0;
+            --text-white: #ffffff;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-full: 9999px;
+            
+            /* Typography */
+            --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+            --transition-normal: 250ms ease-in-out;
+            --transition-slow: 350ms ease-in-out;
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Components */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--glass-shadow);
+            padding: var(--spacing-xl);
+            transition: all var(--transition-normal);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.45);
+        }
+
+        /* Header Glassmorphism */
+        .glass-header {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg) var(--spacing-2xl);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .nav-brand i {
+            font-size: var(--font-size-2xl);
+            color: var(--accent-color);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .nav-link {
+            color: var(--text-white);
+            text-decoration: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--glass-bg);
+            color: var(--text-white);
+            text-decoration: none;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: calc(100vh - 80px);
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .glass-sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-header h3 {
+            color: var(--text-white);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--glass-bg);
+            color: var(--text-white);
+            text-decoration: none;
+        }
+
+        .dashboard-main {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-header h2 {
+            color: var(--text-white);
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .section-header p {
+            color: var(--text-light);
+            font-size: var(--font-size-lg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-white);
+            font-size: var(--font-size-xl);
+        }
+
+        .stat-info h3 {
+            font-size: var(--font-size-2xl);
+            color: var(--text-white);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-info p {
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+        }
+
+        /* File Grid */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .file-card {
+            display: flex;
+            flex-direction: column;
+            padding: var(--spacing-lg);
+            transition: all var(--transition-normal);
+        }
+
+        .file-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .file-preview {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-white);
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .file-details h4 {
+            color: var(--text-white);
+            margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-lg);
+        }
+
+        .file-details p {
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .file-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--font-size-xs);
+            color: var(--text-light);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-icon:hover {
+            background: var(--primary-color);
+            color: var(--text-white);
+            border-color: var(--primary-color);
+        }
+
+        /* Upload Section */
+        .upload-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-3xl);
+            text-align: center;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .upload-area:hover,
+        .upload-area.drag-over {
+            border-color: var(--primary-color);
+            background: var(--glass-bg);
+        }
+
+        .upload-area i {
+            font-size: var(--font-size-4xl);
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .upload-area h3 {
+            color: var(--text-white);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .upload-area p {
+            color: var(--text-light);
+        }
+
+        /* Footer */
+        .glass-footer {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-white);
+            margin-top: auto;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+                padding: var(--spacing-md);
+            }
+            
+            .glass-sidebar {
+                position: static;
+                order: 2;
+            }
+            
+            .dashboard-main {
+                order: 1;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="glass-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>NotesHub</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Login</a>
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" onclick="alert('Upload feature coming soon!')" class="nav-link">Upload</a>
+                <a href="#" onclick="alert('Profile feature coming soon!')" class="nav-link">Profile</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <aside class="glass-sidebar">
+                <div class="sidebar-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-section="overview">
+                        <i class="fas fa-home"></i> Overview
+                    </a>
+                    <a href="#" class="nav-item" data-section="my-files">
+                        <i class="fas fa-file"></i> My Files
+                    </a>
+                    <a href="#" class="nav-item" data-section="shared">
+                        <i class="fas fa-share-alt"></i> Shared Files
+                    </a>
+                    <a href="#" class="nav-item" data-section="favorites">
+                        <i class="fas fa-star"></i> Favorites
+                    </a>
+                    <a href="#" class="nav-item" data-section="upload">
+                        <i class="fas fa-upload"></i> Upload New
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="dashboard-main">
+                <!-- Overview Section -->
+                <section id="overview-section" class="content-section active">
+                    <div class="section-header">
+                        <h2>Dashboard Overview</h2>
+                        <p>Welcome back, Student!</p>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-file"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>24</h3>
+                                <p>Total Files</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>156</h3>
+                                <p>Downloads</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-share"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>12</h3>
+                                <p>Shared</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>3</h3>
+                                <p>Recent Uploads</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Files -->
+                    <div class="recent-files glass-card">
+                        <h3 style="color: var(--text-white); margin-bottom: var(--spacing-lg);">Recent Files</h3>
+                        <div class="file-grid">
+                            <div class="file-card glass-card">
+                                <div class="file-preview">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="file-details">
+                                    <h4>Data Structures Notes</h4>
+                                    <p>Complete notes on data structures and algorithms</p>
+                                    <div class="file-meta">
+                                        <span>2.5 MB</span>
+                                        <span>2 days ago</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="btn-icon" onclick="downloadFile('1')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="shareFile('1')">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="file-card glass-card">
+                                <div class="file-preview">
+                                    <i class="fas fa-file-word"></i>
+                                </div>
+                                <div class="file-details">
+                                    <h4>Web Development Guide</h4>
+                                    <p>HTML, CSS, and JavaScript tutorial</p>
+                                    <div class="file-meta">
+                                        <span>1.8 MB</span>
+                                        <span>5 days ago</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="btn-icon" onclick="downloadFile('2')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="shareFile('2')">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="file-card glass-card">
+                                <div class="file-preview">
+                                    <i class="fas fa-file-powerpoint"></i>
+                                </div>
+                                <div class="file-details">
+                                    <h4>Database Presentation</h4>
+                                    <p>SQL and database concepts slides</p>
+                                    <div class="file-meta">
+                                        <span>5.2 MB</span>
+                                        <span>1 week ago</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="btn-icon" onclick="downloadFile('3')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="shareFile('3')">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- My Files Section -->
+                <section id="my-files-section" class="content-section">
+                    <div class="section-header">
+                        <h2>My Files</h2>
+                        <p>Manage your uploaded files</p>
+                    </div>
+                    
+                    <div class="file-grid">
+                        <div class="file-card glass-card">
+                            <div class="file-preview">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="file-details">
+                                <h4>Algorithm Notes</h4>
+                                <p>Sorting and searching algorithms</p>
+                                <div class="file-meta">
+                                    <span>3.1 MB</span>
+                                    <span>2 weeks ago</span>
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn-icon" onclick="downloadFile('4')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn-icon" onclick="shareFile('4')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteFile('4')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="file-card glass-card">
+                            <div class="file-preview">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="file-details">
+                                <h4>Machine Learning Basics</h4>
+                                <p>Introduction to ML concepts</p>
+                                <div class="file-meta">
+                                    <span>4.7 MB</span>
+                                    <span>3 weeks ago</span>
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn-icon" onclick="downloadFile('5')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn-icon" onclick="shareFile('5')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteFile('5')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upload Section -->
+                <section id="upload-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Upload New File</h2>
+                        <p>Share your notes with others</p>
+                    </div>
+                    
+                    <div class="upload-area glass-card" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Drag & Drop your files here</h3>
+                        <p>or click to browse</p>
+                        <input type="file" id="file-input" style="display: none;" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip">
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-footer">
+        <p>&copy; 2025 Online Notes Sharing System. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Dashboard functionality
+        class DashboardManager {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.setupNavigation();
+                this.setupFileUpload();
+                this.setupFileActions();
+            }
+
+            setupNavigation() {
+                const navItems = document.querySelectorAll('.nav-item[data-section]');
+                const sections = document.querySelectorAll('.content-section');
+
+                navItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const sectionName = item.dataset.section;
+                        this.switchSection(sectionName);
+                    });
+                });
+            }
+
+            switchSection(sectionName) {
+                // Update nav items
+                document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+                    item.classList.toggle('active', item.dataset.section === sectionName);
+                });
+
+                // Update sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.toggle('active', section.id === `${sectionName}-section`);
+                });
+            }
+
+            setupFileUpload() {
+                const dropZone = document.getElementById('drop-zone');
+                const fileInput = document.getElementById('file-input');
+
+                if (dropZone && fileInput) {
+                    // Click to upload
+                    dropZone.addEventListener('click', () => {
+                        fileInput.click();
+                    });
+
+                    // File input change
+                    fileInput.addEventListener('change', (e) => {
+                        this.handleFiles(e.target.files);
+                    });
+
+                    // Drag and drop
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        });
+                    });
+
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, () => {
+                            dropZone.classList.add('drag-over');
+                        });
+                    });
+
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, () => {
+                            dropZone.classList.remove('drag-over');
+                        });
+                    });
+
+                    dropZone.addEventListener('drop', (e) => {
+                        this.handleFiles(e.dataTransfer.files);
+                    });
+                }
+            }
+
+            handleFiles(files) {
+                if (files.length === 0) return;
+
+                const file = files[0];
+                console.log('File selected:', file.name);
+                
+                // Show notification
+                this.showNotification(`File "${file.name}" selected for upload`, 'info');
+                
+                // Simulate upload
+                setTimeout(() => {
+                    this.showNotification(`File "${file.name}" uploaded successfully!`, 'success');
+                }, 2000);
+            }
+
+            setupFileActions() {
+                // File actions are handled by global functions
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                    z-index: 1080;
+                    max-width: 400px;
+                    animation: slideIn 0.3s ease-out;
+                    background: ${type === 'success' ? 'linear-gradient(135deg, #48bb78, #38a169)' : 
+                              type === 'error' ? 'linear-gradient(135deg, #f56565, #e53e3e)' : 
+                              'linear-gradient(135deg, #4299e1, #3182ce)'};
+                    color: white;
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }
+        }
+
+        // Global functions for file actions
+        function downloadFile(fileId) {
+            console.log('Download file:', fileId);
+            alert(`Demo: Downloading file ${fileId}`);
+        }
+
+        function shareFile(fileId) {
+            console.log('Share file:', fileId);
+            alert(`Demo: Sharing file ${fileId}`);
+        }
+
+        function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                console.log('Delete file:', fileId);
+                alert(`Demo: Deleting file ${fileId}`);
+            }
+        }
+
+        // Initialize dashboard when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboardManager = new DashboardManager();
+        });
+    </script>
+</body>
+</html>

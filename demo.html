@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Notes Sharing System - Public Demo</title>
+    
+    <!-- CSS Dependencies -->
+    <style>
+        /* CSS Variables and Global Styles */
+        :root {
+            /* Color Palette */
+            --primary-color: #667eea;
+            --primary-dark: #5a67d8;
+            --primary-light: #7c3aed;
+            --secondary-color: #48bb78;
+            --accent-color: #ed8936;
+            --danger-color: #f56565;
+            --warning-color: #ecc94b;
+            --info-color: #4299e1;
+            
+            /* Glassmorphism Colors */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --glass-backdrop: blur(4px);
+            --glass-backdrop-strong: blur(16px);
+            
+            /* Text Colors */
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --text-light: #a0aec0;
+            --text-white: #ffffff;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-full: 9999px;
+            
+            /* Typography */
+            --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+            --transition-normal: 250ms ease-in-out;
+            --transition-slow: 350ms ease-in-out;
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Components */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--glass-shadow);
+            padding: var(--spacing-xl);
+            transition: all var(--transition-normal);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.45);
+        }
+
+        /* Header Glassmorphism */
+        .glass-header {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg) var(--spacing-2xl);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .nav-brand i {
+            font-size: var(--font-size-2xl);
+            color: var(--accent-color);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .nav-link {
+            color: var(--text-white);
+            text-decoration: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--glass-bg);
+            color: var(--text-white);
+            text-decoration: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: var(--spacing-3xl) var(--spacing-2xl);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Project Showcase */
+        .project-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-2xl);
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .showcase-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .showcase-text h1 {
+            color: var(--text-white);
+            font-size: var(--font-size-4xl);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.2;
+        }
+
+        .showcase-text p {
+            color: var(--text-light);
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.8;
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            text-decoration: none;
+            min-height: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--text-white);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary-color), #38a169);
+            color: var(--text-white);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: var(--text-white);
+        }
+
+        /* Demo Section */
+        .demo-section {
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .demo-section h2 {
+            color: var(--text-white);
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-xl);
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: var(--spacing-2xl);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 50%;
+            color: var(--text-white);
+            font-size: var(--font-size-3xl);
+            margin: 0 auto var(--spacing-lg);
+            box-shadow: 0 8px 32px 0 rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-card h3 {
+            color: var(--text-white);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .tech-stack h2 {
+            color: var(--text-white);
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .tech-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: all var(--transition-normal);
+        }
+
+        .tech-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+
+        .tech-item i {
+            font-size: var(--font-size-2xl);
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+            display: block;
+        }
+
+        .tech-item span {
+            color: var(--text-white);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .glass-footer {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--text-white);
+            margin-top: auto;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .project-showcase {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-xl);
+            }
+            
+            .showcase-text h1 {
+                font-size: var(--font-size-3xl);
+            }
+            
+            .button-group {
+                justify-content: center;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Live Badge */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: var(--text-white);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-left: var(--spacing-md);
+            animation: pulse 2s infinite;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-white);
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="glass-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>NotesHub</span>
+                <div class="live-badge">
+                    <div class="live-dot"></div>
+                    LIVE DEMO
+                </div>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#tech-stack" class="nav-link">Tech Stack</a>
+                <a href="#demo" class="nav-link">Try Demo</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Project Showcase -->
+        <section class="project-showcase fade-in-up">
+            <div class="showcase-text">
+                <h1>Online Notes Sharing System</h1>
+                <p>A modern web application featuring biometric authentication, glassmorphism design, and comprehensive file management. Built with cutting-edge frontend technologies for seamless academic resource sharing.</p>
+                <div class="button-group">
+                    <a href="index.html" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Try Login Demo
+                    </a>
+                    <a href="dashboard.html" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt"></i> View Dashboard
+                    </a>
+                    <a href="PROJECT_REPORT.md" class="btn btn-outline">
+                        <i class="fas fa-file-alt"></i> View Report
+                    </a>
+                </div>
+            </div>
+            <div class="showcase-visual">
+                <div class="glass-card">
+                    <div style="text-align: center; padding: var(--spacing-2xl);">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 80px; color: var(--primary-color); margin-bottom: var(--spacing-lg);"></i>
+                        <h3 style="color: var(--text-white); margin-bottom: var(--spacing-md);">Modern Web Technologies</h3>
+                        <p style="color: var(--text-light);">HTML5 • CSS3 • JavaScript ES6+ • WebRTC • WebAuthn</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="demo-section">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <h3>Biometric Authentication</h3>
+                    <p>Advanced face recognition and fingerprint scanning using WebRTC and WebAuthn APIs for secure login.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3>Glassmorphism Design</h3>
+                    <p>Modern glass-effect UI with backdrop filters, smooth animations, and responsive layouts.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <h3>File Management</h3>
+                    <p>Drag-and-drop upload, progress tracking, and comprehensive file organization with search and filter capabilities.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Responsive Design</h3>
+                    <p>Mobile-first approach with CSS Grid and Flexbox ensuring perfect experience across all devices.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Security First</h3>
+                    <p>Content Security Policy, CSRF protection, and secure authentication flows for data protection.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Performance Optimized</h3>
+                    <p>Core Web Vitals compliance, lazy loading, and optimized bundle sizes for fast loading.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack Section -->
+        <section id="tech-stack" class="tech-stack">
+            <h2>Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fab fa-html5"></i>
+                    <span>HTML5</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-css3-alt"></i>
+                    <span>CSS3</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-js"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-camera"></i>
+                    <span>WebRTC</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>WebAuthn</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-cube"></i>
+                    <span>Canvas API</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-th"></i>
+                    <span>CSS Grid</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-bars"></i>
+                    <span>Flexbox</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-palette"></i>
+                    <span>Variables</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-filter"></i>
+                    <span>Backdrop</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-mobile"></i>
+                    <span>Responsive</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-universal-access"></i>
+                    <span>Accessibility</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section id="demo" class="demo-section">
+            <h2>Try The Live Demo</h2>
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <div class="glass-card" style="padding: var(--spacing-3xl);">
+                    <h3 style="color: var(--text-white); margin-bottom: var(--spacing-lg);">Experience the Full Application</h3>
+                    <p style="color: var(--text-light); margin-bottom: var(--spacing-xl); line-height: 1.8;">
+                        This is a fully functional frontend demonstration of the Online Notes Sharing System. 
+                        Try the biometric authentication, explore the dashboard, and experience the modern glassmorphism design.
+                    </p>
+                    <div class="button-group" style="justify-content: center;">
+                        <a href="index.html" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Start with Login
+                        </a>
+                        <a href="dashboard.html" class="btn btn-secondary">
+                            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                        </a>
+                    </div>
+                    <div style="margin-top: var(--spacing-xl); padding: var(--spacing-lg); background: var(--glass-bg); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--text-white); margin-bottom: var(--spacing-md);">Demo Credentials</h4>
+                        <p style="color: var(--text-light); font-family: monospace;">
+                            Username: demo<br>
+                            Password: demo123
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-footer">
+        <p>&copy; 2025 Online Notes Sharing System. Built with modern web technologies.</p>
+        <p style="margin-top: var(--spacing-sm); color: var(--text-light);">
+            <i class="fas fa-code"></i> Web Programming Project • 
+            <i class="fas fa-graduation-cap"></i> Academic Demonstration
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Add interactive hover effects
+        document.querySelectorAll('.tech-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px) scale(1.05)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-2px) scale(1)';
+            });
+        });
+
+        // Dynamic typing effect for main heading
+        const heading = document.querySelector('.showcase-text h1');
+        if (heading) {
+            const text = heading.textContent;
+            heading.textContent = '';
+            let index = 0;
+            
+            function typeWriter() {
+                if (index < text.length) {
+                    heading.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(typeWriter, 50);
+                }
+            }
+            
+            setTimeout(typeWriter, 500);
+        }
+
+        // Add particle effect on mouse move (subtle)
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardX = rect.left + rect.width / 2;
+                const cardY = rect.top + rect.height / 2;
+                
+                const angleX = (mouseY - cardY) / 30;
+                const angleY = (cardX - mouseX) / 30;
+                
+                card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+{% extends "notes/base.html" %}
+{% load static %}
+
+{% block title %}Upload Note - Online Notes Sharing{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding-top: 20px;
+    }
+
+    .upload-card {
+        padding: 50px;
+    }
+
+    .upload-card h1 {
+        font-weight: 800;
+        margin-bottom: 30px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .upload-card h1 i {
+        color: var(--accent-color);
+    }
+
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: white;
+        height: 50px;
+        border-radius: 12px;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+        color: white;
+    }
+
+    .file-input-wrapper {
+        border: 2px dashed var(--glass-border);
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .file-input-wrapper:hover {
+        border-color: var(--accent-color);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .file-info {
+        font-size: 12px;
+        opacity: 0.6;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="glass-card upload-card animate-3d">
+        <h1><i class="material-icons">cloud_upload</i> Upload Note</h1>
+
+        <form role="form" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Note Title</label>
+                <input type="text" name="title" class="form-control" placeholder="Eg: PHP Tutorial File" required>
+            </div>
+
+            <div class="form-group">
+                <label>Short Description</label>
+                <textarea name="description" class="form-control" style="height: 100px; padding-top: 15px;"
+                    placeholder="What is this note about?" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Select File</label>
+                <div class="file-input-wrapper" onclick="document.getElementById('file-input').click();">
+                    <i class="material-icons" style="font-size: 48px; opacity: 0.5;">insert_drive_file</i>
+                    <p style="margin-top: 10px; font-weight: 500;">Click to select or drag and drop</p>
+                    <div class="file-info">(Allowed: PDF, DOC, PPT, TXT, ZIP | Max: 30MB)</div>
+                    <input type="file" name="file" id="file-input" style="display: none;" required
+                        onchange="document.getElementById('file-name-display').innerText = this.files[0].name;">
+                    <div id="file-name-display" style="margin-top: 10px; font-weight: 700; color: var(--accent-color);">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" name="upload" class="btn-modern"
+                style="width: 100%; height: 55px; font-size: 18px; margin-top: 20px;">
+                Confirm & Upload
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

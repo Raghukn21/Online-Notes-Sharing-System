@@ -1,0 +1,102 @@
+{% extends "notes/base.html" %}
+{% load static %}
+
+{% block title %}Admin Activity Dashboard - Online Notes Sharing{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+    }
+
+    .user-list,
+    .activity-feed {
+        height: 70vh;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .user-item {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+    }
+
+    .log-item {
+        margin-bottom: 12px;
+        padding: 15px;
+        border-left: 4px solid var(--accent-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .log-time {
+        font-size: 11px;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-card glass-card">
+    <div>
+        <h1 style="font-weight: 800; margin: 0;">Admin Activity Panel</h1>
+        <p style="opacity: 0.8; margin-top: 10px;">Monitor all user activities and platform metrics in real-time.</p>
+    </div>
+</div>
+
+<div class="admin-grid">
+    <!-- User Management Section -->
+    <div class="glass-card">
+        <h3 style="margin-top: 0; margin-bottom: 25px; font-weight: 700;">Platform Users</h3>
+        <div class="user-list">
+            {% for u in users %}
+            <div class="user-item glass-card" style="background: rgba(255,255,255,0.05);">
+                <div class="user-avatar">{{ u.username|slice:":1"|upper }}</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600;">{{ u.username }}</div>
+                    <div style="font-size: 12px; opacity: 0.6;">{{ u.role|capfirst }}</div>
+                </div>
+                <div class="status-badge status-approved" style="font-size: 10px;">Active</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Live Activity Feed -->
+    <div class="glass-card">
+        <h3 style="margin-top: 0; margin-bottom: 25px; font-weight: 700;">Live Activity Feed</h3>
+        <div class="activity-feed">
+            {% for log in activities %}
+            <div class="log-item glass-card">
+                <div>
+                    <span style="font-weight: 700; color: var(--accent-color);">{{ log.username }}</span>
+                    <span style="margin: 0 10px; opacity: 0.5;">—</span>
+                    <span>{{ log.action }}</span>
+                </div>
+                <div class="log-time">{{ log.timestamp|date:"M d, H:i" }}</div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 50px; opacity: 0.5;">No activities logged yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

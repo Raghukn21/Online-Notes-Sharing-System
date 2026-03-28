@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Online Notes Sharing{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/cms-home.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/material-icons.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/demo.css') }}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loginstyle.css') }}">
+    <link href="{{ url_for('static', filename='dashboard/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle Navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('index') }}">College-Notes-Gallery</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">About Us</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">Login</a></li>
+                        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 50px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

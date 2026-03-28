@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Notes Sharing{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="{% static 'css/modern_ui.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% if not request.session.user_id %}main-gradient-bg{% endif %}">
+
+    {% if request.session.user_id %}
+    <div class="sidebar">
+        <div
+            style="padding: 30px; font-size: 24px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px;">
+            <i class="material-icons" style="color: var(--accent-color);">description</i>
+            ONSS
+        </div>
+        <div style="padding-top: 20px;">
+            <a href="{% url 'dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fa fa-dashboard"></i> Dashboard
+            </a>
+
+            {% if request.session.role == 'admin' %}
+            <a href="{% url 'admin_activities' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_activities' %}active{% endif %}">
+                <i class="fa fa-line-chart"></i> Admin Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'upload' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}">
+                <i class="fa fa-upload"></i> Upload Notes
+            </a>
+            {% endif %}
+
+            <a href="{% url 'profile' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="fa fa-user"></i> Profile
+            </a>
+            <div style="margin-top: 50px; padding: 0 25px;">
+                <a href="{% url 'logout' %}" class="sidebar-link" style="border:none;">
+                    <i class="fa fa-sign-out"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="{% if request.session.user_id %}main-content{% endif %}">
+        {% if request.session.user_id %}
+        <div class="top-nav">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-weight: 500;">Hello, {{ username }}</span>
+                <div
+                    style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-color); background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; font-weight: 700; text-transform: uppercase;">
+                    {{ username|slice:":1" }}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <nav class="navbar navbar-transparent" style="margin-bottom: 0; padding-top: 20px;">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{% url 'index' %}"
+                        style="color: #fff; font-weight: 700; font-size: 24px;">ONSS</a>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="{% url 'index' %}" style="color: #fff;">Home</a></li>
+                    <li><a href="{% url 'login' %}" style="color: #fff;">Login</a></li>
+                    <li><a href="{% url 'signup' %}" style="color: #fff;" class="btn btn-sm btn-modern">Join</a></li>
+                </ul>
+            </div>
+        </nav>
+        {% endif %}
+
+        <div class="container-fluid animate-3d">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} glass-card" style="margin-bottom: 20px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <a href="https://wa.me/yourlink" class="whatsapp-float">
+        <i class="fa fa-whatsapp" style="font-size: 24px;"></i>
+        <span>WhatsApp us</span>
+    </a>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

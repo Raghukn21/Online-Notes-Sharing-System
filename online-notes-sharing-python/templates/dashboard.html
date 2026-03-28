@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Online Notes Sharing{% endblock %}
+
+{% block content %}
+<div id="wrapper">
+    <div id="page-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        Welcome, {{ current_user.name }}! <small>{{ current_user.role }}</small>
+                    </h1>
+
+                    {% if current_user.role != 'admin' %}
+                    <a href="{{ url_for('upload_note') }}" class="btn btn-primary">Upload New Note</a>
+                    <hr>
+                    {% endif %}
+
+                    <h3>Recent Notes</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Uploader</th>
+                                    <th>Uploaded On</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for upload in uploads %}
+                                <tr>
+                                    <td>{{ upload.file_name }}</td>
+                                    <td>{{ upload.file_description }}</td>
+                                    <td>{{ upload.file_type }}</td>
+                                    <td>{{ upload.file_uploader }}</td>
+                                    <td>{{ upload.file_uploaded_on.strftime('%Y-%m-%d %H:%M') if upload.file_uploaded_on
+                                        else 'N/A' }}</td>
+                                    <td>{{ upload.status }}</td>
+                                    <td>
+                                        <a href="{{ url_for('static', filename='uploads/' + upload.file) }}"
+                                            target="_blank" class="btn btn-xs btn-success">View</a>
+                                        {% if current_user.role == 'admin' and upload.status != 'approved' %}
+                                        <a href="{{ url_for('approve_note', file_id=upload._id) }}"
+                                            class="btn btn-xs btn-primary"
+                                            onclick="return confirm('Approve this note?')">Approve</a>
+                                        {% endif %}
+                                        {% if current_user.role == 'admin' or upload.file_uploader ==
+                                        current_user.username %}
+                                        <a href="{{ url_for('delete_note', file_id=upload._id) }}"
+                                            class="btn btn-xs btn-danger"
+                                            onclick="return confirm('Delete this note?')">Delete</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

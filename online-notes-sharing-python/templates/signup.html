@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Online Notes Sharing{% endblock %}
+
+{% block content %}
+<br>
+<div class="container">
+    <div class="form">
+        <form id="contactform" method="POST">
+            <p class="contact"><label for="name">Name</label></p>
+            <input id="name" name="name" placeholder="First and last name" required="" tabindex="1" type="text">
+
+            <p class="contact"><label for="email">Email</label></p>
+            <input id="email" name="email" placeholder="example@domain.com" required="" type="email">
+
+            <p class="contact"><label for="username">Create a username</label></p>
+            <input id="username" name="username" placeholder="username" required="" tabindex="2" type="text">
+
+            <p class="contact"><label for="password">Create a password</label></p>
+            <input type="password" id="password" name="password" required="">
+
+            <p class="contact"><label for="repassword">Confirm your password</label></p>
+            <input type="password" id="repassword" name="repassword" required="">
+
+            <p class="contact"><label for="gender">Gender </label></p>
+            <select class="select-style gender" name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select><br><br>
+
+            <p class="contact"><label for="role">I am a..</label></p>
+            <select class="select-style gender" name="role">
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
+            </select><br><br>
+
+            <p class="contact"><label for="course">I teach/study..</label></p>
+            <select class="select-style gender" name="course">
+                <option value="Computer Science">Computer Sc Engineering</option>
+                <option value="Electrical">Electrical Engineering</option>
+                <option value="Mechanical">Mechanical Engineering</option>
+            </select><br><br>
+
+            <input class="buttom" name="signup" id="submit" tabindex="5" value="Sign me up!" type="submit">
+        </form>
+    </div>
+</div>
+{% endblock %}
